@@ -1,486 +1,797 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nisar Khan - Rare Service Portfolio</title>
+    <title>Devorl - Your Digital Community Partner</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Include three.js library for 3D graphics -->
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Three.js for 3D animation (kept for aesthetics but not used in core logic) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
     <style>
+        /* Custom styles for a polished look */
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-            scroll-behavior: smooth;
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            background-image: radial-gradient(circle at top, rgba(160, 32, 240, 0.15), transparent 50%);
+            color: #e5e7eb;
         }
-        /* Canvas for particle background */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Place it behind all other content */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
         }
-        .gradient-text {
-            background: linear-gradient(90deg, #a78bfa, #c4b5fd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .btn-secondary {
+             @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-gray-500/50;
         }
-        .bg-card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+        .section-title {
+            @apply text-4xl md:text-5xl font-extrabold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500;
         }
-        .nav-link {
-            position: relative;
-            transition: color 0.3s;
+        .section-subtitle {
+            @apply text-center text-gray-400 mb-12 max-w-2xl mx-auto;
         }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #a78bfa;
-            transition: width 0.3s;
+        /* Star rating styles */
+        .star-rating .fa-star {
+            color: #4b5563; /* gray-600 */
+            cursor: pointer;
+            transition: color 0.2s;
         }
-        .nav-link:hover::after {
-            width: 100%;
+        .star-rating .fa-star:hover,
+        .star-rating .fa-star:hover ~ .fa-star {
+            color: #f59e0b; /* amber-500 */
         }
-        .animated-item {
+        .star-rating:hover .fa-star {
+            color: #f59e0b;
+        }
+        .star-rating .fa-star.selected {
+            color: #f59e0b;
+        }
+
+        /* Animation Styles */
+        .animate-on-scroll {
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
-        .tab-btn {
-            transition: all 0.3s ease;
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .tab-btn.active {
-            background-color: #a78bfa;
-            color: #161b22;
+        .page {
+            transition: opacity 0.4s ease-in-out;
         }
-        /* Style for the 3D Earth canvas container */
-        #earth-container {
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Make it a square */
-            cursor: grab;
+        .page.fade-out {
+            opacity: 0;
         }
-        #earth-canvas {
+        header {
+            transition: background-color 0.3s ease-in-out;
+        }
+        header.scrolled {
+            background: rgba(10, 10, 10, 0.8);
+        }
+        
+        /* Loader Styles */
+        #loader {
+            transition: opacity 0.5s ease-in-out;
+        }
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #3b82f6; /* blue-500 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Initially hide main app content */
+        #app {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #app.loaded {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* 3D Canvas style */
+        #bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            display: block;
+            z-index: -1;
         }
-        /* Floating animation for the earth container */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
-        .floating {
-            animation: float 5s ease-in-out infinite;
-        }
-        /* Interactive card hover effect */
-        .interactive-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .interactive-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 25px rgba(167, 139, 250, 0.15);
+        .hero-section {
+            position: relative;
+            overflow: hidden;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Particle background canvas -->
-    <canvas id="particle-canvas"></canvas>
-
-    <!-- Header -->
-    <header class="fixed w-full top-0 z-50 bg-opacity-80 bg-[#0d1117] backdrop-blur-sm border-b border-[#30363d]">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold gradient-text">Rare Service</h1>
-            <nav class="hidden md:flex space-x-8">
-                <a href="#home" class="nav-link text-gray-300 hover:text-white">Home</a>
-                <a href="#services" class="nav-link text-gray-300 hover:text-white">Services</a>
-                <a href="#skills" class="nav-link text-gray-300 hover:text-white">Skills</a>
-                <a href="#results" class="nav-link text-gray-300 hover:text-white">Results</a>
-                <a href="#contact" class="nav-link text-gray-300 hover:text-white">Contact</a>
-            </nav>
-            <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
-                <i class="fas fa-bars text-2xl"></i>
-            </button>
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
+        <div class="text-center">
+             <!-- LOGO 1: Loader Screen - REPLACED WITH NEW URL -->
+             <img src="https://res.cloudinary.com/dtx8hi2qz/image/upload/v1761237308/IMG_20251010_123658_135_kbous5.webp" alt="Devorl Logo" class="h-24 w-24 mx-auto mb-6 rounded-2xl animate-pulse object-cover" onerror="this.onerror=null;this.src='https://placehold.co/96x96/4F46E5/ffffff?text=D'">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-wider mb-8">
+                Devorl
+            </h1>
+            <div class="loader-spinner"></div>
         </div>
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-card">
-            <a href="#home" class="block py-3 px-6 text-gray-300 hover:bg-[#30363d]">Home</a>
-            <a href="#services" class="block py-3 px-6 text-gray-300 hover:bg-[#30363d]">Services</a>
-            <a href="#skills" class="block py-3 px-6 text-gray-300 hover:bg-[#30363d]">Skills</a>
-            <a href="#results" class="block py-3 px-6 text-gray-300 hover:bg-[#30363d]">Results</a>
-            <a href="#contact" class="block py-3 px-6 text-gray-300 hover:bg-[#30363d]">Contact</a>
-        </div>
-    </header>
+    </div>
 
-    <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center pt-24 md:pt-0">
-        <div class="container mx-auto px-6 grid md:grid-cols-2 items-center gap-12">
-            <div class="animated-item">
-                <span class="text-lg font-semibold text-violet-400">Nisar Khan</span>
-                <h2 class="text-4xl md:text-6xl font-black text-white mt-2 leading-tight">
-                    Expert in <br>
-                    <span class="gradient-text">Digital Ads</span> <br>
-                    &amp; <span class="gradient-text">Copywriting</span>
-                </h2>
-                <p class="text-lg text-gray-400 mt-6 max-w-lg">
-                    I help brands grow with strategic social media advertising and compelling product descriptions that convert.
+
+    <!-- App Container -->
+    <div id="app" class="min-h-screen">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-50 glass-card shadow-lg">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <a href="#" onclick="showPage('home')" class="text-2xl font-bold text-white tracking-wider flex items-center">
+                    <!-- LOGO 2: Header Navigation - REPLACED WITH NEW URL -->
+                    <img src="https://res.cloudinary.com/dtx8hi2qz/image/upload/v1761237308/IMG_20251010_123658_135_kbous5.webp" alt="Devorl Logo" class="h-9 w-9 mr-3 rounded-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/36x36/4F46E5/ffffff?text=D'">
+                    <span>Devorl</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#" onclick="showPage('home')" class="text-gray-300 hover:text-white transition">Home</a>
+                    <!-- Simplified Services menu to just link to Discord -->
+                    <a href="#" onclick="showPage('discord')" class="text-gray-300 hover:text-white transition">Services</a>
+                    <a href="https://rare1848.github.io/rareinfo/" target="_blank" class="text-gray-300 hover:text-white transition">About Us</a>
+                    <a href="#reviews" class="text-gray-300 hover:text-white transition">Reviews</a>
+                    <a href="#contact" class="text-gray-300 hover:text-white transition">Contact</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none ml-4">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+                <a href="#" onclick="showPage('home'); toggleMobileMenu();" class="block py-2 text-gray-300 hover:text-white">Home</a>
+                <a href="#" onclick="showPage('discord'); toggleMobileMenu();" class="block py-2 text-gray-300 hover:text-white">Services</a>
+                <a href="https://rare1848.github.io/rareinfo/" target="_blank" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">About Us</a>
+                <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">Reviews</a>
+                <a href="#contact" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">Contact</a>
+            </div>
+        </header>
+
+        <main>
+            <!-- Home Page Section -->
+            <div id="home-page" class="page">
+                <section class="hero-section pt-20 md:pt-32 pb-8">
+                    <div class="container mx-auto px-6 text-center relative z-10">
+                        <!-- CHANGE 2: Updated Headline -->
+                        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 animate-on-scroll">
+                            Elevate Your Community with <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Expert Discord Management</span>
+                        </h1>
+                        <!-- CHANGE 3: Updated Subtext -->
+                        <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 animate-on-scroll" style="transition-delay: 150ms;">
+                            We provide elite Discord management and seamless community engagement to make your server shine. Discover the difference expertise makes.
+                        </p>
+                        <!-- CHANGE 4: Removed extra CTA buttons, kept only Discord one -->
+                        <div class="flex justify-center items-center space-x-4 animate-on-scroll" style="transition-delay: 300ms;">
+                           <button onclick="showPage('discord')" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">Explore Discord Packages</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="pb-20">
+                    <div class="container mx-auto px-6">
+                        <h2 class="section-title animate-on-scroll">Our Core Service</h2>
+                        <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">Choose a package to see our tailored solutions and find the perfect fit for your community goals.</p>
+                        <!-- CHANGE 5: Only Discord Management Card remains -->
+                        <div class="flex justify-center max-w-7xl mx-auto mt-8">
+                             <!-- Discord Management Card -->
+                            <div class="glass-card p-8 text-center hover:border-indigo-400 transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll" onclick="showPage('discord')" style="cursor: pointer;">
+                                <i class="fab fa-discord text-5xl text-indigo-400 mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white mb-3">Discord Management</h3>
+                                <p class="text-gray-400 mb-6">Professional server setup and management to build and grow your community.</p>
+                                <button onclick="showPage('discord')" class="font-semibold text-indigo-400 hover:text-indigo-300 transition">View Packages <i class="fas fa-arrow-right ml-2"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Social Media Advertising Page (HIDDEN/REMOVED CONTENT) -->
+            <div id="social-media-page" class="page hidden"></div>
+            
+            <!-- Product Description Page (HIDDEN/REMOVED CONTENT) -->
+            <div id="product-desc-page" class="page hidden"></div>
+
+            <!-- Website Creation Page (HIDDEN/REMOVED CONTENT) -->
+            <div id="website-creation-page" class="page hidden"></div>
+            
+
+            <!-- Discord Management Page (Main Focus) -->
+            <div id="discord-page" class="page hidden">
+                <section class="py-20">
+                    <div class="container mx-auto px-6">
+                        <h2 class="section-title animate-on-scroll">Discord Server Management</h2>
+                        <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">Expert setup and management for a secure, engaging, and professional Discord server tailored to your community.</p>
+                        <!-- Pricing Tiers -->
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                            <!-- Basic -->
+                            <div class="glass-card p-8 flex flex-col animate-on-scroll">
+                                <h3 class="text-xl font-bold text-indigo-400 mb-2">Basic</h3>
+                                <p class="text-4xl font-extrabold text-white mb-4">$5</p>
+                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>1-day delivery</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Custom Voice/Text Channels</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Unlimited Roles & Permissions Setup</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Auto Moderation Bots</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Welcome image with text</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Music Bot & Channel</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Server Stats & Audit Log</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Auto Twitter/YouTube/Twitch Alerts</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Private Staff Area</span></li>
+                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Giveaway & Polling System</span></li>
+                                </ul>
+                                <button onclick="showPaymentModal('Discord Basic', 5, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Get Started</button>
+                            </div>
+                            <!-- Standard (Most Popular) -->
+                            <div id="discord-standard-card" class="glass-card p-8 flex flex-col border-2 border-indigo-500 shadow-2xl shadow-indigo-500/20 transform md:scale-105 animate-on-scroll" style="transition-delay: 150ms;">
+                                <p class="text-center font-bold text-white bg-indigo-500 rounded-full py-1 px-4 -mt-12 mx-auto">Most Popular</p>
+                                <h3 class="text-xl font-bold text-indigo-400 mb-2 mt-4">Standard</h3>
+                                <p class="text-4xl font-extrabold text-white mb-4">$<span id="discord-standard-price">10</span></p>
+                                <div class="mb-6">
+                                    <label for="fast-delivery-discord-standard" class="flex items-center cursor-pointer">
+                                        <input type="checkbox" id="fast-delivery-discord-standard" onchange="toggleFastDelivery('discord-standard', this)" class="form-checkbox h-5 w-5 text-indigo-500 rounded">
+                                        <span class="ml-3 text-white">Fast Delivery (1 day) <span class="text-green-400 font-bold">+ $5</span></span>
+                                    </label>
+                                </div>
+                                <p class="text-gray-200 mb-4 font-semibold"><i class="fas fa-star text-yellow-400 mr-2"></i>Everything from Basic</p>
+                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span><span id="discord-standard-delivery">2-day delivery</span></span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Epic Server Design with Emojis</span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Verification System</span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Embedded Rules with Banner</span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Level System & Invite Tracking</span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Self Roles & Server Logs</span></li>
+                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Static & Animated Emojis</span></li>
+                                </ul>
+                                <button id="discord-standard-button" onclick="showPaymentModal('Discord Standard', 10, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Choose Plan</button>
+                            </div>
+                            <!-- Premium -->
+                            <div id="discord-premium-card" class="glass-card p-8 flex flex-col animate-on-scroll" style="transition-delay: 300ms;">
+                                <h3 class="text-xl font-bold text-indigo-400 mb-2">Premium</h3>
+                                <p class="text-4xl font-extrabold text-white mb-4">$<span id="discord-premium-price">20</span></p>
+                                <div class="mb-6">
+                                    <label for="fast-delivery-discord-premium" class="flex items-center cursor-pointer">
+                                        <input type="checkbox" id="fast-delivery-discord-premium" onchange="toggleFastDelivery('discord-premium', this)" class="form-checkbox h-5 w-5 text-indigo-500 rounded">
+                                        <span class="ml-3 text-white">Fast Delivery (2 days) <span class="text-green-400 font-bold">+ $5</span></span>
+                                    </label>
+                                </div>
+                                <p class="text-gray-200 mb-4 font-semibold"><i class="fas fa-crown text-amber-400 mr-2"></i>Everything from Standard</p>
+                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span><span id="discord-premium-delivery">3-day</span> delivery</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Support System (Tickets)</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Anti-Raid & Spam Protection</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Game Patch Updates</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Color Self Roles</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>AI Bot Setup</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Temporary Voice/Text Channels</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Fun Bots (Aki, Counter, Pokémon)</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>After Delivery Technical Support</span></li>
+                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Server Backup System</span></li>
+                                </ul>
+                                <button onclick="showPaymentModal('Discord Premium', 20, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Go Pro</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Reviews Section -->
+            <section id="reviews" class="py-20 bg-black bg-opacity-20">
+                <div class="container mx-auto px-6">
+                    <h2 class="section-title animate-on-scroll">What Our Clients Say</h2>
+                    <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">We pride ourselves on delivering exceptional results. Here's what our clients have to say about their experience.</p>
+                    
+                    <!-- Add Review Form -->
+                    <div class="glass-card p-8 max-w-2xl mx-auto mb-12 mt-8 animate-on-scroll">
+                        <h3 class="text-2xl font-bold text-center text-white mb-6">Leave a Review</h3>
+                        <form id="review-form">
+                            <div class="mb-4">
+                                <label for="review-name" class="block text-gray-300 mb-2">Your Name</label>
+                                <input type="text" id="review-name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-300 mb-2">Your Rating</label>
+                                <div id="review-stars" class="star-rating flex items-center text-3xl">
+                                    <i class="far fa-star" data-value="1"></i>
+                                    <i class="far fa-star" data-value="2"></i>
+                                    <i class="far fa-star" data-value="3"></i>
+                                    <i class="far fa-star" data-value="4"></i>
+                                    <i class="far fa-star" data-value="5"></i>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label for="review-feedback" class="block text-gray-300 mb-2">Feedback</label>
+                                <textarea id="review-feedback" rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                            </div>
+                            <button type="submit" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 w-full">Submit Review</button>
+                        </form>
+                    </div>
+
+                    <!-- Display Reviews -->
+                    <div id="reviews-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Reviews will be dynamically inserted here -->
+                        <p id="no-reviews-message" class="text-gray-400 text-center col-span-full">Be the first to leave a review!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer id="contact" class="bg-gray-900 bg-opacity-50 pt-16 pb-8">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-3 gap-8 mb-8">
+                    <!-- About -->
+                    <div class="animate-on-scroll">
+                        <h4 class="text-xl font-bold text-white mb-4">Devorl</h4>
+                        <p class="text-gray-400">Your dedicated partner for digital community growth. We deliver rare quality and exceptional Discord management results.</p>
+                    </div>
+                    <!-- Contact Info -->
+                    <div class="animate-on-scroll" style="transition-delay: 150ms;">
+                        <h4 class="text-xl font-bold text-white mb-4">Contact Us</h4>
+                        <ul class="space-y-3 text-gray-400">
+                            <li><i class="fas fa-envelope mr-3 text-blue-400"></i> <a href="mailto:devorl.official.safe@gmail.com" class="hover:text-white">devorl.official.safe@gmail.com</a></li>
+                            
+                            <!-- Discord User ID (Not directly clickable, but easily copied) -->
+                            <li><i class="fab fa-discord mr-3 text-indigo-400"></i> <span class="hover:text-white">Discord ID: @devorl.official</span></li>
+                            
+                            <!-- Telegram Link -->
+                            <li><i class="fas fa-paper-plane mr-3 text-blue-400"></i> <a href="https://t.me/devorlofficial0" target="_blank" class="hover:text-white">Telegram: devorlofficial0</a></li>
+                        </ul>
+                    </div>
+                    <!-- Social Links -->
+                    <div class="animate-on-scroll" style="transition-delay: 300ms;">
+                        <h4 class="text-xl font-bold text-white mb-4">Follow Us</h4>
+                        <div class="flex space-x-4">
+                            <!-- Instagram Link -->
+                            <a href="https://www.instagram.com/devorl.official?igsh=dmE5cXR6M2R1eTFq" target="_blank" class="text-gray-400 hover:text-pink-500 text-2xl transition"><i class="fab fa-instagram"></i></a>
+                            
+                            <!-- Discord Server Link (Moved here) -->
+                            <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-gray-400 hover:text-indigo-500 text-2xl transition" title="Discord Server"><i class="fab fa-discord"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 pt-8 text-center text-gray-500">
+                    <!-- CHANGE 1: Replaced Rare Service with Devorl -->
+                    <p>&copy; 2024 Devorl. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Payment Modal (Updated to reflect UPI and LTC only) -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="glass-card p-8 rounded-lg max-w-md w-full text-center relative">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-white mb-2">Complete Your Order</h2>
+            <p class="text-gray-300 mb-6">You've selected: <strong id="modal-service-name" class="text-blue-400"></strong></p>
+            
+            <div id="payment-form">
+                <div class="mb-4">
+                    <label for="buyer-email" class="block text-gray-300 mb-2 text-left">Enter your email to proceed:</label>
+                    <input type="email" id="buyer-email" placeholder="you@example.com" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <p class="text-lg font-bold text-white mb-4">Total: $<span id="modal-price"></span> USD</p>
+
+                <div class="space-y-4">
+                    
+                    <!-- NEW UPI Button -->
+                    <button id="upi-button" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/50 w-full">Pay with UPI (India)</button>
+                    
+                    <!-- Litecoin Button -->
+                    <button id="litecoin-button" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg w-full">Pay with Litecoin (LTC)</button>
+                </div>
+            </div>
+
+            <!-- UPI Instructions -->
+            <div id="upi-instructions" class="hidden mt-6 p-4 bg-gray-800 rounded-lg border border-green-500 text-left">
+                <h4 class="font-bold text-green-400 mb-2">UPI (India) Instructions</h4>
+                <p class="text-sm text-gray-300 break-words">
+                    1. Send the exact USD equivalent in INR to UPI ID: <strong class="text-white">aaditya420@fam</strong>
+                    <br>
+                    2. Take a screenshot of your payment confirmation.
+                    <br>
+                    3. Join our Discord Server: <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-indigo-400 hover:underline font-bold">https://discord.gg/R3AvtTWMgQ</a>. Create a **ticket** and send the screenshot there.
+                    <br>
+                    4. Alternatively, send the payment screenshot directly to Discord user: <strong class="text-white">@mikey_fr09</strong>
                 </p>
-                <div class="mt-8 flex flex-wrap gap-4">
-                    <a href="#contact" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 transform hover:scale-105">
-                        Let's Talk
-                    </a>
-                    <a href="#services" class="border-2 border-violet-500 text-violet-400 font-bold py-3 px-8 rounded-lg transition duration-300 hover:bg-violet-500 hover:text-white">
-                        My Services
-                    </a>
-                </div>
             </div>
-            <!-- 3D Earth Canvas Container -->
-            <div class="hidden md:block animated-item floating" style="transition-delay: 200ms;">
-                <div id="earth-container">
-                    <canvas id="earth-canvas"></canvas>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="py-20">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                <div class="bg-card p-8 rounded-xl animated-item interactive-card" style="transition-delay: 100ms;">
-                    <div class="text-5xl font-extrabold gradient-text mb-2" id="customers-count">0+</div>
-                    <p class="text-xl font-semibold text-gray-300">Happy Customers</p>
-                    <p class="text-gray-500">In the last 3 years</p>
-                </div>
-                <div class="bg-card p-8 rounded-xl animated-item interactive-card" style="transition-delay: 200ms;">
-                    <div class="text-5xl font-extrabold gradient-text mb-2" id="views-count">0M+</div>
-                    <p class="text-xl font-semibold text-gray-300">Views Generated</p>
-                     <p class="text-gray-500">From ad campaigns</p>
-                </div>
-                <div class="bg-card p-8 rounded-xl animated-item interactive-card" style="transition-delay: 300ms;">
-                    <div class="text-5xl font-extrabold gradient-text mb-2" id="watch-time-count">0K+</div>
-                    <p class="text-xl font-semibold text-gray-300">Hours Watch Time</p>
-                     <p class="text-gray-500">Driving engagement</p>
-                </div>
+            
+            <!-- Litecoin Instructions (UPDATED Address) -->
+            <div id="litecoin-instructions" class="hidden mt-6 p-4 bg-gray-800 rounded-lg border border-blue-500 text-left">
+                <h4 class="font-bold text-blue-400 mb-2">Litecoin (LTC) Instructions</h4>
+                <p class="text-sm text-gray-300 break-words">
+                    1. Send payment to LTC address: <strong class="text-white">ltc1q572r65xaknfujgvpsjfusmrr99x7cm29m3nzvn</strong>
+                    <br>
+                    2. Take a screenshot of your payment confirmation.
+                    <br>
+                    3. Join our Discord Server: <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-indigo-400 hover:underline font-bold">https://discord.gg/R3AvtTWMgQ</a>. Create a **ticket** and send the screenshot there.
+                    <br>
+                    4. Alternatively, send the payment screenshot directly to Discord user: <strong class="text-white">@mikey_fr09</strong>
+                </p>
             </div>
         </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services" class="py-20 bg-card">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white animated-item">What I Offer</h2>
-                <p class="text-lg text-gray-400 mt-2 animated-item" style="transition-delay: 100ms;">Tailored services to boost your brand.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-[#0d1117] p-8 rounded-xl animated-item interactive-card transition-all duration-300 hover:border-violet-500 border border-transparent" style="transition-delay: 200ms;">
-                    <div class="text-violet-400 text-4xl mb-4"><i class="fas fa-bullhorn"></i></div>
-                    <h3 class="text-2xl font-bold text-white mb-3">Social Media Advertising</h3>
-                    <p class="text-gray-400 mb-4">Targeted ad campaigns on Facebook, Instagram, & YouTube to maximize reach and results.</p>
-                    <a href="https://www.fiverr.com/s/GzakKEZ" target="_blank" class="text-violet-400 hover:text-violet-300 font-semibold">View on Fiverr <i class="fas fa-arrow-right ml-1"></i></a>
-                </div>
-                <div class="bg-[#0d1117] p-8 rounded-xl animated-item interactive-card transition-all duration-300 hover:border-violet-500 border border-transparent" style="transition-delay: 300ms;">
-                    <div class="text-violet-400 text-4xl mb-4"><i class="fas fa-pen-to-square"></i></div>
-                    <h3 class="text-2xl font-bold text-white mb-3">Product Description Writing</h3>
-                    <p class="text-gray-400 mb-4">Persuasive and SEO-friendly copy that turns browsers into buyers.</p>
-                    <a href="https://www.fiverr.com/s/38q6NDA" target="_blank" class="text-violet-400 hover:text-violet-300 font-semibold">View on Fiverr <i class="fas fa-arrow-right ml-1"></i></a>
-                </div>
-            </div>
+    </div>
+    
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[110] hidden">
+        <div class="glass-card p-8 rounded-lg max-w-sm w-full text-center relative">
+            <h2 id="notification-title" class="text-xl font-bold text-yellow-400 mb-4"></h2>
+            <p id="notification-message" class="text-gray-300 mb-6"></p>
+            <button onclick="closeNotificationModal()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">OK</button>
         </div>
-    </section>
+    </div>
 
-    <!-- Skills & Qualifications Section -->
-    <section id="skills" class="py-20">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white animated-item">My Qualifications</h2>
-                <p class="text-lg text-gray-400 mt-2 animated-item" style="transition-delay: 100ms;">My expertise backed by education and training.</p>
-            </div>
-            <div class="max-w-4xl mx-auto animated-item" style="transition-delay: 200ms;">
-                <div class="flex justify-center mb-8 border-b border-gray-700">
-                    <button class="tab-btn active py-2 px-6 font-semibold" data-tab="courses">Courses & Training</button>
-                    <button class="tab-btn py-2 px-6 font-semibold text-gray-400" data-tab="education">Education</button>
-                    <button class="tab-btn py-2 px-6 font-semibold text-gray-400" data-tab="languages">Languages</button>
-                </div>
-                <div id="tab-content">
-                    <!-- Courses Content -->
-                    <div id="courses" class="tab-pane">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center">
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>Meta Blueprint</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>YouTube Advertising</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>TikTok Ads</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>WhatsApp Marketing</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>Coursera Copywriting</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><p>Google Digital Garage</p></div>
-                        </div>
-                    </div>
-                    <!-- Education Content -->
-                    <div id="education" class="tab-pane hidden">
-                        <div class="bg-card p-6 rounded-lg text-center interactive-card">
-                            <p class="text-xl font-semibold text-white">Intermediate (FSc - ICS)</p>
-                            <p class="text-gray-300">Army Public schools & College, Pakistan</p>
-                            <p class="text-gray-400 mt-2">Subjects: Computer Science, Mathematics, Physics</p>
-                        </div>
-                    </div>
-                    <!-- Languages Content -->
-                    <div id="languages" class="tab-pane hidden">
-                         <div class="grid grid-cols-3 gap-4 text-center">
-                            <div class="bg-card p-4 rounded-lg interactive-card"><h4 class="font-semibold text-white">English</h4><p class="text-sm text-gray-400">Professional</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><h4 class="font-semibold text-white">Urdu</h4><p class="text-sm text-gray-400">Native</p></div>
-                            <div class="bg-card p-4 rounded-lg interactive-card"><h4 class="font-semibold text-white">Hindi</h4><p class="text-sm text-gray-400">Fluent</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Results Section -->
-    <section id="results" class="py-20 bg-card">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-white animated-item">Proven Results</h2>
-                <p class="text-lg text-gray-400 mt-2 animated-item" style="transition-delay: 100ms;">Data-driven success stories from my campaigns.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-[#0d1117] p-8 rounded-xl animated-item interactive-card" style="transition-delay: 200ms;">
-                    <h3 class="text-2xl font-bold text-white mb-2">Campaign Highlight 1</h3>
-                    <p class="text-5xl font-extrabold gradient-text my-4">271K+</p>
-                    <p class="text-xl text-gray-300">Views on a single video</p>
-                    <p class="text-3xl font-bold text-white mt-4">3.2K+</p>
-                    <p class="text-lg text-gray-400">Hours of Watch Time</p>
-                </div>
-                 <div class="bg-[#0d1117] p-8 rounded-xl animated-item interactive-card" style="transition-delay: 300ms;">
-                    <h3 class="text-2xl font-bold text-white mb-2">Campaign Highlight 2</h3>
-                    <p class="text-5xl font-extrabold gradient-text my-4">276K+</p>
-                    <p class="text-xl text-gray-300">Views on another video</p>
-                    <p class="text-3xl font-bold text-white mt-4">2.6K+</p>
-                    <p class="text-lg text-gray-400">Hours of Watch Time</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Firebase SDK and Javascript Logic -->
+    <script type="module">
+        // Import Firebase modules. deleteDoc and doc are still needed in the imports to avoid syntax errors,
+        // but the deleteReview function that used them has been removed.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-20">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl font-bold text-white animated-item">Ready to Elevate Your Brand?</h2>
-            <p class="text-lg text-gray-400 mt-2 mb-8 max-w-2xl mx-auto animated-item" style="transition-delay: 100ms;">Let's connect and discuss how I can help you achieve your goals.</p>
-            <div class="flex justify-center items-center flex-wrap gap-8 animated-item" style="transition-delay: 200ms;">
-                <a href="https://wa.me/923409796147" target="_blank" class="text-lg text-gray-300 hover:text-violet-400 transition"><i class="fab fa-whatsapp mr-2"></i>+92 340 9796147</a>
-                <a href="mailto:rareyt911@gmail.com" class="text-lg text-gray-300 hover:text-violet-400 transition"><i class="fas fa-envelope mr-2"></i>rareyt911@gmail.com</a>
-            </div>
-        </div>
-    </section>
+        // Firebase configuration (using existing config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAfrgJa42DC2OeB4oHnY_1x9kYK4VvaQW4",
+            authDomain: "rare-web-ece2a.firebaseapp.com",
+            projectId: "rare-web-ece2a",
+            storageBucket: "rare-web-ece2a.appspot.com",
+            messagingSenderId: "556680350724",
+            appId: "1:556680350724:web:e474966c2f53502a3f3951",
+            measurementId: "G-Z5SKE6ER22"
+        };
 
-    <!-- Footer -->
-    <footer class="bg-card border-t border-[#30363d] py-6">
-        <div class="container mx-auto px-6 text-center text-gray-500">
-            <p>&copy; 2024 Nisar Khan (Rare Service). All Rights Reserved.</p>
-        </div>
-    </footer>
-
-    <script>
-        // --- PARTICLE BACKGROUND SCRIPT ---
-        const particleCanvas = document.getElementById('particle-canvas');
-        const particleScene = new THREE.Scene();
-        const particleCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        particleCamera.position.z = 5;
-        const particleRenderer = new THREE.WebGLRenderer({ canvas: particleCanvas, antialias: true });
-        particleRenderer.setSize(window.innerWidth, window.innerHeight);
-        particleRenderer.setPixelRatio(window.devicePixelRatio);
-
-        const particleCount = 5000;
-        const positions = new Float32Array(particleCount * 3);
-        for (let i = 0; i < particleCount * 3; i++) {
-            positions[i] = (Math.random() - 0.5) * 15;
-        }
-        const particlesGeometry = new THREE.BufferGeometry();
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            color: 0x5a4a9f,
-            size: 0.02,
-            transparent: true,
-            opacity: 0.6
-        });
-        const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
-        particleScene.add(particleSystem);
-
-        // --- STYLIZED 3D EARTH SCRIPT ---
-        const earthContainer = document.getElementById('earth-container');
-        const earthCanvas = document.getElementById('earth-canvas');
-        const earthScene = new THREE.Scene();
-        const earthCamera = new THREE.PerspectiveCamera(75, earthContainer.clientWidth / earthContainer.clientHeight, 0.1, 1000);
-        earthCamera.position.z = 2.2;
-        const earthRenderer = new THREE.WebGLRenderer({ canvas: earthCanvas, alpha: true, antialias: true });
-        earthRenderer.setSize(earthContainer.clientWidth, earthContainer.clientHeight);
-        earthRenderer.setPixelRatio(window.devicePixelRatio);
-
-        // Add lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-        earthScene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xffffff, 1.0);
-        pointLight.position.set(5, 3, 5);
-        earthScene.add(pointLight);
-
-        // Texture loader
-        const textureLoader = new THREE.TextureLoader();
-
-        // Earth mesh with glowing continents
-        const earthGeometry = new THREE.SphereGeometry(1.0, 64, 64); 
-        const earthMaterial = new THREE.MeshPhongMaterial({
-            map: textureLoader.load('https://unpkg.com/three-globe@2.24.4/example/img/earth-dark.jpg'),
-            emissiveMap: textureLoader.load('https://res.cloudinary.com/dtx8hi2qz/image/upload/v1753553067/ChatGPT_Image_Jul_26_2025_11_04_01_PM_ueu2ql.png'),
-            emissive: new THREE.Color(0xffff88),
-            emissiveIntensity: 1.5,
-        });
-        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-        earthScene.add(earth);
+        // Initialize Firebase
+        let app, db, auth, userId;
         
-        // Atmosphere glow
-        const atmosphereGeometry = new THREE.SphereGeometry(1.0, 64, 64);
-        const atmosphereMaterial = new THREE.ShaderMaterial({
-            vertexShader: `
-                varying vec3 vertexNormal;
-                void main() {
-                    vertexNormal = normalize(normalMatrix * normal);
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                varying vec3 vertexNormal;
-                void main() {
-                    float intensity = pow(0.6 - dot(vertexNormal, vec3(0, 0, 1.0)), 2.0);
-                    gl_FragColor = vec4(0.5, 0.4, 1.0, 1.0) * intensity;
-                }
-            `,
-            blending: THREE.AdditiveBlending,
-            side: THREE.BackSide,
-            transparent: true
-        });
-        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
-        atmosphere.scale.set(1.2, 1.2, 1.2);
-        earthScene.add(atmosphere);
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            signInAnonymously(auth)
+                .then((userCredential) => {
+                    userId = userCredential.user.uid;
+                    console.log("Anonymous User ID:", userId);
+                    loadReviews();
+                })
+                .catch((error) => {
+                    console.error("Anonymous sign-in failed:", error);
+                });
 
-
-        // Mouse interaction variables
-        let isMouseDown = false;
-        let previousMousePosition = { x: 0, y: 0 };
-        earthContainer.addEventListener('mousedown', (e) => { isMouseDown = true; });
-        earthContainer.addEventListener('mouseup', (e) => { isMouseDown = false; });
-        earthContainer.addEventListener('mouseleave', (e) => { isMouseDown = false; });
-        earthContainer.addEventListener('mousemove', (e) => {
-            if (!isMouseDown) return;
-            const deltaMove = { x: e.offsetX - previousMousePosition.x, y: e.offsetY - previousMousePosition.y };
-            earth.rotation.y += deltaMove.x * 0.005;
-            earth.rotation.x += deltaMove.y * 0.005;
-            previousMousePosition = { x: e.offsetX, y: e.offsetY };
-        });
-
-        // --- COMBINED ANIMATION LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-            // Particle animation
-            particleSystem.rotation.y += 0.0002;
-            particleRenderer.render(particleScene, particleCamera);
-            // Earth animation
-            if (!isMouseDown) {
-                earth.rotation.y += 0.0007;
-            }
-            earthRenderer.render(earthScene, earthCamera);
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+            showNotification("Initialization Error", "The website could not connect to its services. Please verify the Firebase configuration.");
         }
-        animate();
 
-        // --- GENERAL PAGE SCRIPTS ---
-        // Mobile menu toggle
+
+        // --- Page Navigation ---
+        const pages = document.querySelectorAll('.page');
+        window.showPage = function(pageId) {
+            // Immediately navigate to discord page if any other service page is clicked (since they are now empty)
+            if (pageId !== 'home' && pageId !== 'discord') {
+                 pageId = 'discord';
+            }
+            
+            const currentPage = Array.from(pages).find(p => !p.classList.contains('hidden'));
+            const newPage = document.getElementById(`${pageId}-page`);
+
+            if (currentPage && currentPage !== newPage) {
+                currentPage.classList.add('fade-out');
+                setTimeout(() => {
+                    currentPage.classList.add('hidden');
+                    currentPage.classList.remove('fade-out');
+                    
+                    newPage.classList.remove('hidden');
+                    void newPage.offsetWidth; 
+                    setupScrollAnimations(newPage);
+                    window.scrollTo(0, 0);
+                }, 400); 
+            } else if (!currentPage) {
+                newPage.classList.remove('hidden');
+                setupScrollAnimations(newPage);
+            }
+        }
+
+        // --- Mobile Menu ---
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        const navLinks = document.querySelectorAll('#mobile-menu a, header nav a');
-        mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-        navLinks.forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+        window.toggleMobileMenu = function() {
+            mobileMenu.classList.toggle('hidden');
+        }
+        mobileMenuButton.addEventListener('click', toggleMobileMenu);
 
-        // Function to animate numbers
-        function animateValue(obj, start, end, duration, suffix = '', decimals = 0) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const currentValue = progress * (end - start) + start;
-                obj.innerHTML = currentValue.toLocaleString('en-US', {
-                    minimumFractionDigits: decimals,
-                    maximumFractionDigits: decimals
-                }) + suffix;
-                if (progress < 1) window.requestAnimationFrame(step);
+        // --- Review System ---
+        const reviewForm = document.getElementById('review-form');
+        const reviewStars = document.getElementById('review-stars').querySelectorAll('.fa-star');
+        const reviewsContainer = document.getElementById('reviews-container');
+        const noReviewsMessage = document.getElementById('no-reviews-message');
+        let currentRating = 0;
+
+        reviewStars.forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = star.dataset.value;
+                reviewStars.forEach(s => {
+                    s.classList.toggle('fas', s.dataset.value <= currentRating);
+                    s.classList.toggle('far', s.dataset.value > currentRating);
+                    s.classList.toggle('selected', s.dataset.value <= currentRating);
+                });
+            });
+        });
+
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!db) { showNotification("Error", "Database not connected."); return; }
+            if (currentRating === 0) {
+                showNotification("Incomplete", "Please select a star rating before submitting.");
+                return;
+            }
+            const reviewData = {
+                name: document.getElementById('review-name').value,
+                rating: parseInt(currentRating),
+                feedback: document.getElementById('review-feedback').value,
+                createdAt: serverTimestamp()
             };
-            window.requestAnimationFrame(step);
+            try {
+                // Public data path
+                await addDoc(collection(db, "reviews"), reviewData);
+                reviewForm.reset();
+                currentRating = 0;
+                reviewStars.forEach(s => { s.classList.remove('fas', 'selected'); s.classList.add('far'); });
+                showNotification("Success", "Thank you for your review!");
+            } catch (error) {
+                console.error("Error adding review: ", error);
+                showNotification("Error", "Sorry, there was an error submitting your review.");
+            }
+        });
+
+        function loadReviews() {
+            if (!db) return;
+            const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                if (snapshot.empty) {
+                    noReviewsMessage.classList.remove('hidden');
+                    reviewsContainer.innerHTML = '';
+                    return;
+                }
+                noReviewsMessage.classList.add('hidden');
+                reviewsContainer.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const review = doc.data();
+                    
+                    // Client-side filter to hide the specific review ("khan")
+                    if (review.name && review.name.toLowerCase() === 'khan') {
+                        return; // Skip this review
+                    }
+
+                    const reviewEl = document.createElement('div');
+                    reviewEl.className = 'glass-card p-6 animate-on-scroll';
+                    
+                    let starsHTML = '';
+                    for (let i = 1; i <= 5; i++) {
+                        starsHTML += `<i class="fas fa-star ${i <= review.rating ? 'text-amber-400' : 'text-gray-600'}"></i>`;
+                    }
+                    
+                    // Display structure
+                    reviewEl.innerHTML = `
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl mr-4">${review.name.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <h4 class="font-bold text-white">${review.name}</h4>
+                                <div class="text-lg">${starsHTML}</div>
+                            </div>
+                        </div>
+                        <p class="text-gray-300">"${review.feedback}"</p>
+                    `;
+                    reviewsContainer.appendChild(reviewEl);
+                });
+                setupScrollAnimations(document.getElementById('reviews'));
+            });
+        }
+        
+        // --- Payment Modal & Notification Modal Logic ---
+        const paymentModal = document.getElementById('payment-modal');
+        const upiButton = document.getElementById('upi-button'); // NEW UPI button
+        const litecoinButton = document.getElementById('litecoin-button');
+        const upiInstructions = document.getElementById('upi-instructions'); // NEW UPI instructions
+        const litecoinInstructions = document.getElementById('litecoin-instructions');
+        const notificationModal = document.getElementById('notification-modal');
+        let currentService = {};
+        
+        // Global function to show generic notification
+        window.showNotification = (title, message) => {
+            const modalContent = notificationModal.querySelector('.glass-card');
+            
+            // Restore the original structure for a simple notification
+            modalContent.innerHTML = `
+                <h2 id="notification-title" class="text-xl font-bold text-yellow-400 mb-4">${title}</h2>
+                <p id="notification-message" class="text-gray-300 mb-6">${message}</p>
+                <button onclick="closeNotificationModal()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">OK</button>
+            `;
+            notificationModal.classList.remove('hidden');
+        }
+        
+        window.closeNotificationModal = () => {
+            notificationModal.classList.add('hidden');
         }
 
-        // Intersection Observer for scroll animations
-        const observer = new IntersectionObserver((entries) => {
+        window.showPaymentModal = (serviceName, price, skrillLink) => { // skrillLink is now unused but kept for compatibility
+            currentService = { serviceName, price, skrillLink };
+            document.getElementById('modal-service-name').textContent = serviceName;
+            document.getElementById('modal-price').textContent = price;
+
+            paymentModal.classList.remove('hidden');
+            upiInstructions.classList.add('hidden'); // Reset instructions
+            litecoinInstructions.classList.add('hidden'); // Reset instructions
+        }
+
+        window.closePaymentModal = () => {
+            paymentModal.classList.add('hidden');
+        }
+
+
+        async function processOrder(paymentMethod) {
+            if (!db) { showNotification("Error", "Database not connected."); return; }
+
+            const buyerEmailInput = document.getElementById('buyer-email');
+            if (!buyerEmailInput.value || !buyerEmailInput.checkValidity()) {
+                showNotification("Input Required", "Please enter a valid email address.");
+                buyerEmailInput.focus();
+                return;
+            }
+
+            const orderData = {
+                buyerEmail: buyerEmailInput.value,
+                serviceName: currentService.serviceName,
+                price: currentService.price,
+                paymentMethod: paymentMethod,
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "orders"), orderData);
+                
+                // For UPI and Litecoin, simply log the order and show instructions
+                showNotification('Order Logged', 'Your order has been recorded. Please follow the payment instructions in the modal.');
+                
+            } catch (error) {
+                console.error("Error creating order: ", error);
+                showNotification("Error", "There was an error processing your order. Please try again.");
+            }
+        }
+
+        // REMOVED skrillButton event listener
+
+        upiButton.addEventListener('click', () => {
+            upiInstructions.classList.remove('hidden');
+            litecoinInstructions.classList.add('hidden');
+            processOrder('UPI');
+        });
+
+        // REMOVED nayapayButton event listener (replaced by UPI)
+
+        litecoinButton.addEventListener('click', () => {
+            litecoinInstructions.classList.remove('hidden');
+            upiInstructions.classList.add('hidden');
+            processOrder('Litecoin');
+        });
+
+
+        // --- Animation Logic ---
+        const scrollObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                    if (entry.target.id === 'stats-trigger') {
-                        animateValue(document.getElementById('customers-count'), 0, 50000, 2000, '+');
-                        animateValue(document.getElementById('views-count'), 0, 5.5, 2000, 'M+', 1);
-                        animateValue(document.getElementById('watch-time-count'), 0, 5.8, 2000, 'K+', 1);
-                        observer.unobserve(entry.target);
-                    }
+                    entry.target.classList.add('is-visible');
                 }
             });
         }, { threshold: 0.1 });
 
-        const statsSection = document.querySelector('.grid-cols-1.md\\:grid-cols-3');
-        const statsTrigger = document.createElement('div');
-        statsTrigger.id = 'stats-trigger';
-        if (statsSection) statsSection.before(statsTrigger);
-        document.querySelectorAll('.animated-item, #stats-trigger').forEach(item => observer.observe(item));
-
-        // Tabs for Skills section
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.getAttribute('data-tab');
-                tabButtons.forEach(btn => {
-                    btn.classList.remove('active', 'text-gray-400');
-                    if (btn === button) btn.classList.add('active');
-                    else btn.classList.add('text-gray-400');
-                });
-                tabPanes.forEach(pane => {
-                    if (pane.id === tabId) pane.classList.remove('hidden');
-                    else pane.classList.add('hidden');
-                });
+        function setupScrollAnimations(container) {
+            const elementsToAnimate = container.querySelectorAll('.animate-on-scroll');
+            elementsToAnimate.forEach(el => {
+                el.classList.remove('is-visible');
+                scrollObserver.observe(el);
             });
+        }
+        
+        window.addEventListener('scroll', () => {
+            document.querySelector('header').classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // --- RESIZE HANDLER ---
-        window.addEventListener('resize', () => {
-            // Update particle canvas
-            particleCamera.aspect = window.innerWidth / window.innerHeight;
-            particleCamera.updateProjectionMatrix();
-            particleRenderer.setSize(window.innerWidth, window.innerHeight);
-            // Update earth canvas
-            if (earthContainer.clientWidth > 0) {
-                earthCamera.aspect = earthContainer.clientWidth / earthContainer.clientHeight;
-                earthCamera.updateProjectionMatrix();
-                earthRenderer.setSize(earthContainer.clientWidth, earthContainer.clientHeight);
-            }
+        // --- Initial Load & Loader Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('loader');
+            const app = document.getElementById('app');
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                app.classList.add('loaded');
+                
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    setupScrollAnimations(document.body);
+                }, 500); // Match CSS transition duration
+
+            }, 3500); // 3.5 second delay
         });
+        
+        // --- Fast Delivery Logic (Simplified to only include Discord tiers) ---
+        window.toggleFastDelivery = (tier, checkbox) => {
+            // ONLY keep discord-standard and discord-premium logic
+            const deliveryOptions = {
+                'discord-standard': { basePrice: 10, fastPrice: 15, baseDelivery: '2-day delivery', fastDelivery: '1-day delivery', baseLink: null, fastLink: null, serviceName: 'Discord Standard' }, // Links are now null as Skrill is removed
+                'discord-premium': { basePrice: 20, fastPrice: 25, baseDelivery: '3-day delivery', fastDelivery: '2-day delivery', baseLink: null, fastLink: null, serviceName: 'Discord Premium' } // Links are now null as Skrill is removed
+            };
+
+            const options = deliveryOptions[tier];
+            if (!options) return;
+
+            const priceEl = document.getElementById(`${tier}-price`);
+            const deliveryEl = document.getElementById(`${tier}-delivery`);
+            const buttonEl = document.getElementById(`${tier}-button`);
+
+            const isFast = checkbox.checked;
+            const price = isFast ? options.fastPrice : options.basePrice;
+            const delivery = isFast ? options.fastDelivery : options.baseDelivery;
+            const link = isFast ? options.fastLink : options.baseLink;
+            const serviceName = isFast ? `${options.serviceName} (Fast Delivery)` : options.serviceName;
+
+            priceEl.textContent = price;
+            if (deliveryEl) deliveryEl.textContent = delivery;
+            
+            // Update the onclick attribute of the button - link parameter is now null
+            buttonEl.setAttribute('onclick', `showPaymentModal('${serviceName}', ${price}, null)`);
+        };
+
     </script>
+    
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6873fa4c359126190c0bf405/1j02gjf9k';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
+
 </body>
 </html>
