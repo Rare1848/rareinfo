@@ -1,797 +1,436 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devorl - Your Digital Community Partner</title>
+    <title>CoreTick - Premium Watch Store</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Three.js for 3D animation (kept for aesthetics but not used in core logic) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <style>
-        /* Custom styles for a polished look */
+        /* Base font */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000000;
-            background-image: radial-gradient(circle at top, rgba(160, 32, 240, 0.15), transparent 50%);
-            color: #e5e7eb;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary {
-             @apply bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-gray-500/50;
-        }
-        .section-title {
-            @apply text-4xl md:text-5xl font-extrabold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500;
-        }
-        .section-subtitle {
-            @apply text-center text-gray-400 mb-12 max-w-2xl mx-auto;
-        }
-        /* Star rating styles */
-        .star-rating .fa-star {
-            color: #4b5563; /* gray-600 */
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .star-rating .fa-star:hover,
-        .star-rating .fa-star:hover ~ .fa-star {
-            color: #f59e0b; /* amber-500 */
-        }
-        .star-rating:hover .fa-star {
-            color: #f59e0b;
-        }
-        .star-rating .fa-star.selected {
-            color: #f59e0b;
+            background-color: #fff; /* Ensure body bg is set for preloader */
         }
 
-        /* Animation Styles */
-        .animate-on-scroll {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-        .animate-on-scroll.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .page {
-            transition: opacity 0.4s ease-in-out;
-        }
-        .page.fade-out {
-            opacity: 0;
-        }
-        header {
-            transition: background-color 0.3s ease-in-out;
-        }
-        header.scrolled {
-            background: rgba(10, 10, 10, 0.8);
-        }
-        
-        /* Loader Styles */
-        #loader {
-            transition: opacity 0.5s ease-in-out;
-        }
-        #loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #3b82f6; /* blue-500 */
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Initially hide main app content */
-        #app {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        #app.loaded {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        /* 3D Canvas style */
-        #bg-canvas {
-            position: absolute;
+        /* --- Preloader Styles --- */
+        #preloader {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            background-color: #000; /* Black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.75s ease;
         }
-        .hero-section {
-            position: relative;
-            overflow: hidden;
+        #preloader.fade-out {
+            opacity: 0;
+        }
+        #preloader img {
+            width: 150px;
+            height: 150px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        /* --- End Preloader Styles --- */
+
+
+        /* Custom Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes subtleFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.7;
+            }
+        }
+
+        /* Animation Utility Classes */
+        .animate-fadeInUp {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        
+        .animate-fadeInUp-delay-1 {
+            opacity: 0; /* Start hidden */
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+
+        .animate-fadeInUp-delay-2 {
+            opacity: 0; /* Start hidden */
+            animation: fadeInUp 1s ease-out 0.6s forwards;
+        }
+
+        .animate-subtleFloat {
+            animation: subtleFloat 4s ease-in-out infinite;
+        }
+
+        /* Scrollbar styling (optional, but adds to the theme) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-white text-black antialiased">
 
-    <!-- Loader -->
-    <div id="loader" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
-        <div class="text-center">
-             <!-- LOGO 1: Loader Screen - REPLACED WITH NEW URL -->
-             <img src="https://res.cloudinary.com/dtx8hi2qz/image/upload/v1761237308/IMG_20251010_123658_135_kbous5.webp" alt="Devorl Logo" class="h-24 w-24 mx-auto mb-6 rounded-2xl animate-pulse object-cover" onerror="this.onerror=null;this.src='https://placehold.co/96x96/4F46E5/ffffff?text=D'">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-wider mb-8">
-                Devorl
-            </h1>
-            <div class="loader-spinner"></div>
-        </div>
+    <!-- --- Preloader HTML --- -->
+    <div id="preloader">
+        <img src="https://res.cloudinary.com/dzzd68fzx/image/upload/v1761482887/ChatGPT_Image_Oct_26_2025_05_48_06_PM_uik06n.png" alt="Loading CoreTick...">
     </div>
+    <!-- --- End Preloader HTML --- -->
 
-
-    <!-- App Container -->
-    <div id="app" class="min-h-screen">
-
-        <!-- Header -->
-        <header class="sticky top-0 z-50 glass-card shadow-lg">
-            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <a href="#" onclick="showPage('home')" class="text-2xl font-bold text-white tracking-wider flex items-center">
-                    <!-- LOGO 2: Header Navigation - REPLACED WITH NEW URL -->
-                    <img src="https://res.cloudinary.com/dtx8hi2qz/image/upload/v1761237308/IMG_20251010_123658_135_kbous5.webp" alt="Devorl Logo" class="h-9 w-9 mr-3 rounded-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/36x36/4F46E5/ffffff?text=D'">
-                    <span>Devorl</span>
+    <!-- Header -->
+    <header class="bg-black text-white shadow-lg sticky top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-5 flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="#" class="text-3xl font-bold tracking-tight uppercase">
+                CoreTick
+            </a>
+            
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="hover:text-gray-300 transition-colors duration-300">Home</a>
+                <a href="#featured" class="hover:text-gray-300 transition-colors duration-300">Shop</a>
+                <a href="#about" class="hover:text-gray-300 transition-colors duration-300">About Us</a>
+                <a href="#contact" class="hover:text-gray-300 transition-colors duration-300">Contact Us</a>
+            </div>
+            
+            <!-- Icons & Mobile Menu Button -->
+            <div class="flex items-center space-x-5">
+                <a href="#" class="hover:text-gray-300 transition-colors duration-300" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                 </a>
-                <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#" onclick="showPage('home')" class="text-gray-300 hover:text-white transition">Home</a>
-                    <!-- Simplified Services menu to just link to Discord -->
-                    <a href="#" onclick="showPage('discord')" class="text-gray-300 hover:text-white transition">Services</a>
-                    <!-- REMOVED: <a href="https://rare1848.github.io/rareinfo/" target="_blank" class="text-gray-300 hover:text-white transition">About Us</a> -->
-                    <a href="#reviews" class="text-gray-300 hover:text-white transition">Reviews</a>
-                    <a href="#contact" class="text-gray-300 hover:text-white transition">Contact</a>
-                </nav>
-                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none ml-4">
-                    <i class="fas fa-bars text-2xl"></i>
+                <a href="#" class="hover:text-gray-300 transition-colors duration-300" aria-label="Cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </a>
+                
+                <!-- Mobile Menu Button -->
+                <button id="menu-btn" class="md:hidden focus:outline-none" aria-label="Open menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
                 </button>
             </div>
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
-                <a href="#" onclick="showPage('home'); toggleMobileMenu();" class="block py-2 text-gray-300 hover:text-white">Home</a>
-                <a href="#" onclick="showPage('discord'); toggleMobileMenu();" class="block py-2 text-gray-300 hover:text-white">Services</a>
-                <!-- REMOVED: <a href="https://rare1848.github.io/rareinfo/" target="_blank" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">About Us</a> -->
-                <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">Reviews</a>
-                <a href="#contact" onclick="toggleMobileMenu()" class="block py-2 text-gray-300 hover:text-white">Contact</a>
-            </div>
-        </header>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-black">
+            <a href="#home" class="block py-3 px-6 text-sm hover:bg-gray-800">Home</a>
+            <a href="#featured" class="block py-3 px-6 text-sm hover:bg-gray-800">Shop</a>
+            <a href="#about" class="block py-3 px-6 text-sm hover:bg-gray-800">About Us</a>
+            <a href="#contact" class="block py-3 px-6 text-sm hover:bg-gray-800">Contact Us</a>
+        </div>
+    </header>
 
-        <main>
-            <!-- Home Page Section -->
-            <div id="home-page" class="page">
-                <section class="hero-section pt-20 md:pt-32 pb-8">
-                    <div class="container mx-auto px-6 text-center relative z-10">
-                        <!-- CHANGE 2: Updated Headline -->
-                        <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 animate-on-scroll">
-                            Elevate Your Community with <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">Expert Discord Management</span>
-                        </h1>
-                        <!-- CHANGE 3: Updated Subtext -->
-                        <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-10 animate-on-scroll" style="transition-delay: 150ms;">
-                            We provide elite Discord management and seamless community engagement to make your server shine. Discover the difference expertise makes.
-                        </p>
-                        <!-- CHANGE 4: Removed extra CTA buttons, kept only Discord one -->
-                        <div class="flex justify-center items-center space-x-4 animate-on-scroll" style="transition-delay: 300ms;">
-                           <button onclick="showPage('discord')" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">Explore Discord Packages</button>
-                        </div>
-                    </div>
-                </section>
+    <!-- Main Content -->
+    <main>
 
-                <section class="pb-20">
-                    <div class="container mx-auto px-6">
-                        <h2 class="section-title animate-on-scroll">Our Core Service</h2>
-                        <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">Choose a package to see our tailored solutions and find the perfect fit for your community goals.</p>
-                        <!-- CHANGE 5: Only Discord Management Card remains -->
-                        <div class="flex justify-center max-w-7xl mx-auto mt-8">
-                             <!-- Discord Management Card -->
-                            <div class="glass-card p-8 text-center hover:border-indigo-400 transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll" onclick="showPage('discord')" style="cursor: pointer;">
-                                <i class="fab fa-discord text-5xl text-indigo-400 mb-4"></i>
-                                <h3 class="text-2xl font-bold text-white mb-3">Discord Management</h3>
-                                <p class="text-gray-400 mb-6">Professional server setup and management to build and grow your community.</p>
-                                <button onclick="showPage('discord')" class="font-semibold text-indigo-400 hover:text-indigo-300 transition">View Packages <i class="fas fa-arrow-right ml-2"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Social Media Advertising Page (HIDDEN/REMOVED CONTENT) -->
-            <div id="social-media-page" class="page hidden"></div>
-            
-            <!-- Product Description Page (HIDDEN/REMOVED CONTENT) -->
-            <div id="product-desc-page" class="page hidden"></div>
-
-            <!-- Website Creation Page (HIDDEN/REMOVED CONTENT) -->
-            <div id="website-creation-page" class="page hidden"></div>
-            
-
-            <!-- Discord Management Page (Main Focus) -->
-            <div id="discord-page" class="page hidden">
-                <section class="py-20">
-                    <div class="container mx-auto px-6">
-                        <h2 class="section-title animate-on-scroll">Discord Server Management</h2>
-                        <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">Expert setup and management for a secure, engaging, and professional Discord server tailored to your community.</p>
-                        <!-- Pricing Tiers -->
-                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-                            <!-- Basic -->
-                            <div class="glass-card p-8 flex flex-col animate-on-scroll">
-                                <h3 class="text-xl font-bold text-indigo-400 mb-2">Basic</h3>
-                                <p class="text-4xl font-extrabold text-white mb-4">$5</p>
-                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>1-day delivery</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Custom Voice/Text Channels</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Unlimited Roles & Permissions Setup</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Auto Moderation Bots</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Welcome image with text</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Music Bot & Channel</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Server Stats & Audit Log</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Auto Twitter/YouTube/Twitch Alerts</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Private Staff Area</span></li>
-                                    <li class="flex items-start"><i class="fas fa-check-circle text-green-400 mr-3 mt-1"></i><span>Giveaway & Polling System</span></li>
-                                </ul>
-                                <button onclick="showPaymentModal('Discord Basic', 5, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Get Started</button>
-                            </div>
-                            <!-- Standard (Most Popular) -->
-                            <div id="discord-standard-card" class="glass-card p-8 flex flex-col border-2 border-indigo-500 shadow-2xl shadow-indigo-500/20 transform md:scale-105 animate-on-scroll" style="transition-delay: 150ms;">
-                                <p class="text-center font-bold text-white bg-indigo-500 rounded-full py-1 px-4 -mt-12 mx-auto">Most Popular</p>
-                                <h3 class="text-xl font-bold text-indigo-400 mb-2 mt-4">Standard</h3>
-                                <p class="text-4xl font-extrabold text-white mb-4">$<span id="discord-standard-price">10</span></p>
-                                <div class="mb-6">
-                                    <label for="fast-delivery-discord-standard" class="flex items-center cursor-pointer">
-                                        <input type="checkbox" id="fast-delivery-discord-standard" onchange="toggleFastDelivery('discord-standard', this)" class="form-checkbox h-5 w-5 text-indigo-500 rounded">
-                                        <span class="ml-3 text-white">Fast Delivery (1 day) <span class="text-green-400 font-bold">+ $5</span></span>
-                                    </label>
-                                </div>
-                                <p class="text-gray-200 mb-4 font-semibold"><i class="fas fa-star text-yellow-400 mr-2"></i>Everything from Basic</p>
-                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span><span id="discord-standard-delivery">2-day delivery</span></span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Epic Server Design with Emojis</span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Verification System</span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Embedded Rules with Banner</span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Level System & Invite Tracking</span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Self Roles & Server Logs</span></li>
-                                    <li class="flex items-start"><i class="fas fa-star text-yellow-400 mr-3 mt-1"></i><span>Static & Animated Emojis</span></li>
-                                </ul>
-                                <button id="discord-standard-button" onclick="showPaymentModal('Discord Standard', 10, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Choose Plan</button>
-                            </div>
-                            <!-- Premium -->
-                            <div id="discord-premium-card" class="glass-card p-8 flex flex-col animate-on-scroll" style="transition-delay: 300ms;">
-                                <h3 class="text-xl font-bold text-indigo-400 mb-2">Premium</h3>
-                                <p class="text-4xl font-extrabold text-white mb-4">$<span id="discord-premium-price">20</span></p>
-                                <div class="mb-6">
-                                    <label for="fast-delivery-discord-premium" class="flex items-center cursor-pointer">
-                                        <input type="checkbox" id="fast-delivery-discord-premium" onchange="toggleFastDelivery('discord-premium', this)" class="form-checkbox h-5 w-5 text-indigo-500 rounded">
-                                        <span class="ml-3 text-white">Fast Delivery (2 days) <span class="text-green-400 font-bold">+ $5</span></span>
-                                    </label>
-                                </div>
-                                <p class="text-gray-200 mb-4 font-semibold"><i class="fas fa-crown text-amber-400 mr-2"></i>Everything from Standard</p>
-                                <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span><span id="discord-premium-delivery">3-day</span> delivery</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Support System (Tickets)</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Anti-Raid & Spam Protection</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Game Patch Updates</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Color Self Roles</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>AI Bot Setup</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Temporary Voice/Text Channels</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Fun Bots (Aki, Counter, Pokémon)</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>After Delivery Technical Support</span></li>
-                                    <li class="flex items-start"><i class="fas fa-crown text-amber-400 mr-3 mt-1"></i><span>Server Backup System</span></li>
-                                </ul>
-                                <button onclick="showPaymentModal('Discord Premium', 20, null)" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 mt-auto">Go Pro</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Reviews Section -->
-            <section id="reviews" class="py-20 bg-black bg-opacity-20">
-                <div class="container mx-auto px-6">
-                    <h2 class="section-title animate-on-scroll">What Our Clients Say</h2>
-                    <p class="section-subtitle animate-on-scroll" style="transition-delay: 150ms;">We pride ourselves on delivering exceptional results. Here's what our clients have to say about their experience.</p>
-                    
-                    <!-- Add Review Form -->
-                    <div class="glass-card p-8 max-w-2xl mx-auto mb-12 mt-8 animate-on-scroll">
-                        <h3 class="text-2xl font-bold text-center text-white mb-6">Leave a Review</h3>
-                        <form id="review-form">
-                            <div class="mb-4">
-                                <label for="review-name" class="block text-gray-300 mb-2">Your Name</label>
-                                <input type="text" id="review-name" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="block text-gray-300 mb-2">Your Rating</label>
-                                <div id="review-stars" class="star-rating flex items-center text-3xl">
-                                    <i class="far fa-star" data-value="1"></i>
-                                    <i class="far fa-star" data-value="2"></i>
-                                    <i class="far fa-star" data-value="3"></i>
-                                    <i class="far fa-star" data-value="4"></i>
-                                    <i class="far fa-star" data-value="5"></i>
-                                </div>
-                            </div>
-                            <div class="mb-6">
-                                <label for="review-feedback" class="block text-gray-300 mb-2">Feedback</label>
-                                <textarea id="review-feedback" rows="4" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                            </div>
-                            <button type="submit" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 w-full">Submit Review</button>
-                        </form>
-                    </div>
-
-                    <!-- Display Reviews -->
-                    <div id="reviews-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- Reviews will be dynamically inserted here -->
-                        <p id="no-reviews-message" class="text-gray-400 text-center col-span-full">Be the first to leave a review!</p>
-                    </div>
+        <!-- Hero Section -->
+        <section id="home" class="bg-black text-white py-20 md:py-32 overflow-hidden">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+                
+                <!-- Hero Text -->
+                <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0 md:pr-12">
+                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6 animate-fadeInUp">
+                        Timeless Style, Modern Elegance
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-10 animate-fadeInUp-delay-1">
+                        Explore our premium watch collection designed to elevate your style.
+                    </p>
+                    <a href="#featured" class="bg-white text-black font-bold py-3 px-8 rounded-lg text-lg hover:bg-gray-200 transition-all duration-300 animate-fadeInUp-delay-2">
+                        Shop Collection
+                    </a>
                 </div>
-            </section>
-        </main>
+                
+                <!-- Hero Image -->
+                <div class="md:w-1/2 flex justify-center items-center">
+                    <img src="https://res.cloudinary.com/dzzd68fzx/image/upload/v1761473733/1675922477history-of-patek-philippe-nautilus_cqbvqt.jpg" 
+                         alt="Premium Watch" 
+                         onerror="this.src='https://placehold.co/450x450/111111/ffffff?text=Image+Failed+To+Load&font=inter'; this.onerror=null;"
+                         class="rounded-lg shadow-2xl animate-subtleFloat w-full max-w-lg object-contain h-auto">
+                </div>
+            </div>
+        </section>
 
-        <!-- Footer -->
-        <footer id="contact" class="bg-gray-900 bg-opacity-50 pt-16 pb-8">
+        <!-- Featured Products Section -->
+        <section id="featured" class="py-24 bg-white">
             <div class="container mx-auto px-6">
-                <div class="grid md:grid-cols-3 gap-8 mb-8">
-                    <!-- About -->
-                    <div class="animate-on-scroll">
-                        <h4 class="text-xl font-bold text-white mb-4">Devorl</h4>
-                        <p class="text-gray-400">Your dedicated partner for digital community growth. We deliver rare quality and exceptional Discord management results.</p>
-                    </div>
-                    <!-- Contact Info -->
-                    <div class="animate-on-scroll" style="transition-delay: 150ms;">
-                        <h4 class="text-xl font-bold text-white mb-4">Contact Us</h4>
-                        <ul class="space-y-3 text-gray-400">
-                            <li><i class="fas fa-envelope mr-3 text-blue-400"></i> <a href="mailto:devorl.official.safe@gmail.com" class="hover:text-white">devorl.official.safe@gmail.com</a></li>
-                            
-                            <!-- Discord User ID (Not directly clickable, but easily copied) -->
-                            <li><i class="fab fa-discord mr-3 text-indigo-400"></i> <span class="hover:text-white">Discord ID: @devorl.official</span></li>
-                            
-                            <!-- Telegram Link -->
-                            <li><i class="fas fa-paper-plane mr-3 text-blue-400"></i> <a href="https://t.me/devorlofficial0" target="_blank" class="hover:text-white">Telegram: devorlofficial0</a></li>
-                        </ul>
-                    </div>
-                    <!-- Social Links -->
-                    <div class="animate-on-scroll" style="transition-delay: 300ms;">
-                        <h4 class="text-xl font-bold text-white mb-4">Follow Us</h4>
-                        <div class="flex space-x-4">
-                            <!-- Instagram Link -->
-                            <a href="https://www.instagram.com/devorl.official?igsh=dmE5cXR6M2R1eTFq" target="_blank" class="text-gray-400 hover:text-pink-500 text-2xl transition"><i class="fab fa-instagram"></i></a>
-                            
-                            <!-- Discord Server Link (Moved here) -->
-                            <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-gray-400 hover:text-indigo-500 text-2xl transition" title="Discord Server"><i class="fab fa-discord"></i></a>
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                    Our Featured Watches
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                    
+                    <!-- Product Card 1 -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2">
+                        <div class="overflow-hidden h-72">
+                            <img src="https://placehold.co/600x600/f3f4f6/111111?text=Watch+Model+1&font=inter" 
+                                 alt="Watch Model 1" 
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2">Classic Chronograph</h3>
+                            <p class="text-lg text-gray-800 font-bold mb-4">PKR 8,999</p>
+                            <a href="#" class="inline-block bg-black text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300">
+                                Add to Cart
+                            </a>
                         </div>
                     </div>
-                </div>
-                <div class="border-t border-gray-800 pt-8 text-center text-gray-500">
-                    <!-- CHANGE 1: Replaced Rare Service with Devorl -->
-                    <p>&copy; 2024 Devorl. All Rights Reserved.</p>
-                </div>
-            </div>
-        </footer>
 
-    </div>
-
-    <!-- Payment Modal (Updated to reflect UPI and LTC only) -->
-    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
-        <div class="glass-card p-8 rounded-lg max-w-md w-full text-center relative">
-            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
-            <h2 class="text-2xl font-bold text-white mb-2">Complete Your Order</h2>
-            <p class="text-gray-300 mb-6">You've selected: <strong id="modal-service-name" class="text-blue-400"></strong></p>
-            
-            <div id="payment-form">
-                <div class="mb-4">
-                    <label for="buyer-email" class="block text-gray-300 mb-2 text-left">Enter your email to proceed:</label>
-                    <input type="email" id="buyer-email" placeholder="you@example.com" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                
-                <p class="text-lg font-bold text-white mb-4">Total: $<span id="modal-price"></span> USD</p>
-
-                <div class="space-y-4">
-                    
-                    <!-- NEW UPI Button -->
-                    <button id="upi-button" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/50 w-full">Pay with UPI (India)</button>
-                    
-                    <!-- Litecoin Button -->
-                    <button id="litecoin-button" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg w-full">Pay with Litecoin (LTC)</button>
-                </div>
-            </div>
-
-            <!-- UPI Instructions -->
-            <div id="upi-instructions" class="hidden mt-6 p-4 bg-gray-800 rounded-lg border border-green-500 text-left">
-                <h4 class="font-bold text-green-400 mb-2">UPI (India) Instructions</h4>
-                <p class="text-sm text-gray-300 break-words">
-                    1. Send the exact USD equivalent in INR to UPI ID: <strong class="text-white">aaditya420@fam</strong>
-                    <br>
-                    2. Take a screenshot of your payment confirmation.
-                    <br>
-                    3. Join our Discord Server: <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-indigo-400 hover:underline font-bold">https://discord.gg/R3AvtTWMgQ</a>. Create a **ticket** and send the screenshot there.
-                    <br>
-                    4. Alternatively, send the payment screenshot directly to Discord user: <strong class="text-white">@mikey_fr09</strong>
-                </p>
-            </div>
-            
-            <!-- Litecoin Instructions (UPDATED Address) -->
-            <div id="litecoin-instructions" class="hidden mt-6 p-4 bg-gray-800 rounded-lg border border-blue-500 text-left">
-                <h4 class="font-bold text-blue-400 mb-2">Litecoin (LTC) Instructions</h4>
-                <p class="text-sm text-gray-300 break-words">
-                    1. Send payment to LTC address: <strong class="text-white">ltc1q572r65xaknfujgvpsjfusmrr99x7cm29m3nzvn</strong>
-                    <br>
-                    2. Take a screenshot of your payment confirmation.
-                    <br>
-                    3. Join our Discord Server: <a href="https://discord.gg/R3AvtTWMgQ" target="_blank" class="text-indigo-400 hover:underline font-bold">https://discord.gg/R3AvtTWMgQ</a>. Create a **ticket** and send the screenshot there.
-                    <br>
-                    4. Alternatively, send the payment screenshot directly to Discord user: <strong class="text-white">@mikey_fr09</strong>
-                </p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Notification Modal -->
-    <div id="notification-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[110] hidden">
-        <div class="glass-card p-8 rounded-lg max-w-sm w-full text-center relative">
-            <h2 id="notification-title" class="text-xl font-bold text-yellow-400 mb-4"></h2>
-            <p id="notification-message" class="text-gray-300 mb-6"></p>
-            <button onclick="closeNotificationModal()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">OK</button>
-        </div>
-    </div>
-
-
-    <!-- Firebase SDK and Javascript Logic -->
-    <script type="module">
-        // Import Firebase modules. deleteDoc and doc are still needed in the imports to avoid syntax errors,
-        // but the deleteReview function that used them has been removed.
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // Firebase configuration (using existing config)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAfrgJa42DC2OeB4oHnY_1x9kYK4VvaQW4",
-            authDomain: "rare-web-ece2a.firebaseapp.com",
-            projectId: "rare-web-ece2a",
-            storageBucket: "rare-web-ece2a.appspot.com",
-            messagingSenderId: "556680350724",
-            appId: "1:556680350724:web:e474966c2f53502a3f3951",
-            measurementId: "G-Z5SKE6ER22"
-        };
-
-        // Initialize Firebase
-        let app, db, auth, userId;
-        
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            signInAnonymously(auth)
-                .then((userCredential) => {
-                    userId = userCredential.user.uid;
-                    console.log("Anonymous User ID:", userId);
-                    loadReviews();
-                })
-                .catch((error) => {
-                    console.error("Anonymous sign-in failed:", error);
-                });
-
-        } catch (e) {
-            console.error("Firebase initialization failed:", e);
-            showNotification("Initialization Error", "The website could not connect to its services. Please verify the Firebase configuration.");
-        }
-
-
-        // --- Page Navigation ---
-        const pages = document.querySelectorAll('.page');
-        window.showPage = function(pageId) {
-            // Immediately navigate to discord page if any other service page is clicked (since they are now empty)
-            if (pageId !== 'home' && pageId !== 'discord') {
-                 pageId = 'discord';
-            }
-            
-            const currentPage = Array.from(pages).find(p => !p.classList.contains('hidden'));
-            const newPage = document.getElementById(`${pageId}-page`);
-
-            if (currentPage && currentPage !== newPage) {
-                currentPage.classList.add('fade-out');
-                setTimeout(() => {
-                    currentPage.classList.add('hidden');
-                    currentPage.classList.remove('fade-out');
-                    
-                    newPage.classList.remove('hidden');
-                    void newPage.offsetWidth; 
-                    setupScrollAnimations(newPage);
-                    window.scrollTo(0, 0);
-                }, 400); 
-            } else if (!currentPage) {
-                newPage.classList.remove('hidden');
-                setupScrollAnimations(newPage);
-            }
-        }
-
-        // --- Mobile Menu ---
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        window.toggleMobileMenu = function() {
-            mobileMenu.classList.toggle('hidden');
-        }
-        mobileMenuButton.addEventListener('click', toggleMobileMenu);
-
-        // --- Review System ---
-        const reviewForm = document.getElementById('review-form');
-        const reviewStars = document.getElementById('review-stars').querySelectorAll('.fa-star');
-        const reviewsContainer = document.getElementById('reviews-container');
-        const noReviewsMessage = document.getElementById('no-reviews-message');
-        let currentRating = 0;
-
-        reviewStars.forEach(star => {
-            star.addEventListener('click', () => {
-                currentRating = star.dataset.value;
-                reviewStars.forEach(s => {
-                    s.classList.toggle('fas', s.dataset.value <= currentRating);
-                    s.classList.toggle('far', s.dataset.value > currentRating);
-                    s.classList.toggle('selected', s.dataset.value <= currentRating);
-                });
-            });
-        });
-
-        reviewForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!db) { showNotification("Error", "Database not connected."); return; }
-            if (currentRating === 0) {
-                showNotification("Incomplete", "Please select a star rating before submitting.");
-                return;
-            }
-            const reviewData = {
-                name: document.getElementById('review-name').value,
-                rating: parseInt(currentRating),
-                feedback: document.getElementById('review-feedback').value,
-                createdAt: serverTimestamp()
-            };
-            try {
-                // Public data path
-                await addDoc(collection(db, "reviews"), reviewData);
-                reviewForm.reset();
-                currentRating = 0;
-                reviewStars.forEach(s => { s.classList.remove('fas', 'selected'); s.classList.add('far'); });
-                showNotification("Success", "Thank you for your review!");
-            } catch (error) {
-                console.error("Error adding review: ", error);
-                showNotification("Error", "Sorry, there was an error submitting your review.");
-            }
-        });
-
-        function loadReviews() {
-            if (!db) return;
-            const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
-            onSnapshot(q, (snapshot) => {
-                if (snapshot.empty) {
-                    noReviewsMessage.classList.remove('hidden');
-                    reviewsContainer.innerHTML = '';
-                    return;
-                }
-                noReviewsMessage.classList.add('hidden');
-                reviewsContainer.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const review = doc.data();
-                    
-                    // Client-side filter to hide the specific review ("khan")
-                    if (review.name && review.name.toLowerCase() === 'khan') {
-                        return; // Skip this review
-                    }
-
-                    const reviewEl = document.createElement('div');
-                    reviewEl.className = 'glass-card p-6 animate-on-scroll';
-                    
-                    let starsHTML = '';
-                    for (let i = 1; i <= 5; i++) {
-                        starsHTML += `<i class="fas fa-star ${i <= review.rating ? 'text-amber-400' : 'text-gray-600'}"></i>`;
-                    }
-                    
-                    // Display structure
-                    reviewEl.innerHTML = `
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xl mr-4">${review.name.charAt(0).toUpperCase()}</div>
-                            <div>
-                                <h4 class="font-bold text-white">${review.name}</h4>
-                                <div class="text-lg">${starsHTML}</div>
-                            </div>
+                    <!-- Product Card 2 -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2">
+                        <div class="overflow-hidden h-72">
+                            <img src="https://placehold.co/600x600/f3f4f6/111111?text=Watch+Model+2&font=inter" 
+                                 alt="Watch Model 2" 
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         </div>
-                        <p class="text-gray-300">"${review.feedback}"</p>
-                    `;
-                    reviewsContainer.appendChild(reviewEl);
-                });
-                setupScrollAnimations(document.getElementById('reviews'));
-            });
-        }
-        
-        // --- Payment Modal & Notification Modal Logic ---
-        const paymentModal = document.getElementById('payment-modal');
-        const upiButton = document.getElementById('upi-button'); // NEW UPI button
-        const litecoinButton = document.getElementById('litecoin-button');
-        const upiInstructions = document.getElementById('upi-instructions'); // NEW UPI instructions
-        const litecoinInstructions = document.getElementById('litecoin-instructions');
-        const notificationModal = document.getElementById('notification-modal');
-        let currentService = {};
-        
-        // Global function to show generic notification
-        window.showNotification = (title, message) => {
-            const modalContent = notificationModal.querySelector('.glass-card');
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2">Minimalist Black</h3>
+                            <p class="text-lg text-gray-800 font-bold mb-4">PKR 4,999</p>
+                            <a href="#" class="inline-block bg-black text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300">
+                                Add to Cart
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Product Card 3 -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg shadow-lg overflow-hidden transition-all duration-300 group hover:shadow-2xl hover:-translate-y-2">
+                        <div class="overflow-hidden h-72">
+                            <img src="https://placehold.co/600x600/f3f4f6/111111?text=Watch+Model+3&font=inter" 
+                                 alt="Watch Model 3" 
+                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-semibold mb-2">Silver Elegance</h3>
+                            <p class="text-lg text-gray-800 font-bold mb-4">PKR 9,499</p>
+                            <a href="#" class="inline-block bg-black text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors duration-300">
+                                Add to Cart
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Choose Us Section -->
+        <section id="about" class="bg-gray-100 py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                    Why Choose Us?
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    
+                    <!-- Feature 1 -->
+                    <div class="flex flex-col items-center">
+                        <div class="bg-black text-white rounded-full p-5 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-2h8z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2-2h8zM21 16V6a1 1 0 00-1-1h-1m1 11l-2-2m-2-7h-7m11 0h.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Free Shipping</h3>
+                        <p class="text-gray-700">Enjoy free shipping on all orders nationwide.</p>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div class="flex flex-col items-center">
+                        <div class="bg-black text-white rounded-full p-5 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Secure Payments</h3>
+                        <p class="text-gray-700">Your payments are 100% secure and encrypted.</p>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div class="flex flex-col items-center">
+                        <div class="bg-black text-white rounded-full p-5 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Premium Quality</h3>
+                        <p class="text-gray-700">Crafted from only the finest materials available.</p>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter & Contact Section -->
+        <section id="contact" class="bg-black text-white py-20">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl font-bold mb-4">Stay Connected</h2>
+                <p class="text-gray-300 mb-8 max-w-lg mx-auto">Subscribe to our newsletter for the latest collections and special offers.</p>
+                <form class="flex flex-col sm:flex-row justify-center max-w-md mx-auto">
+                    <input type="email" 
+                           placeholder="Your email address" 
+                           class="w-full sm:w-auto flex-grow px-4 py-3 rounded-lg sm:rounded-l-lg sm:rounded-r-none mb-3 sm:mb-0 text-black focus:outline-none focus:ring-2 focus:ring-white"
+                           required>
+                    <button type="submit" 
+                            class="bg-white text-black font-bold py-3 px-6 rounded-lg sm:rounded-r-lg sm:rounded-l-none hover:bg-gray-200 transition-colors duration-300">
+                        Subscribe
+                    </button>
+                </form>
+                
+                <!-- Direct Contact Links -->
+                <div class="mt-10 text-gray-300">
+                    <p class="mb-2">Or reach us directly:</p>
+                    <a href="mailto:coretick2@gmail.com" class="text-white font-semibold hover:underline">coretick2@gmail.com</a>
+                    <span class="mx-2 text-gray-500">|</span>
+                    <a href="https://wa.me/923213595359" target="_blank" class="text-white font-semibold hover:underline">WhatsApp: +92 321 3595359</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-16">
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            // Restore the original structure for a simple notification
-            modalContent.innerHTML = `
-                <h2 id="notification-title" class="text-xl font-bold text-yellow-400 mb-4">${title}</h2>
-                <p id="notification-message" class="text-gray-300 mb-6">${message}</p>
-                <button onclick="closeNotificationModal()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50">OK</button>
-            `;
-            notificationModal.classList.remove('hidden');
-        }
-        
-        window.closeNotificationModal = () => {
-            notificationModal.classList.add('hidden');
-        }
-
-        window.showPaymentModal = (serviceName, price, skrillLink) => { // skrillLink is now unused but kept for compatibility
-            currentService = { serviceName, price, skrillLink };
-            document.getElementById('modal-service-name').textContent = serviceName;
-            document.getElementById('modal-price').textContent = price;
-
-            paymentModal.classList.remove('hidden');
-            upiInstructions.classList.add('hidden'); // Reset instructions
-            litecoinInstructions.classList.add('hidden'); // Reset instructions
-        }
-
-        window.closePaymentModal = () => {
-            paymentModal.classList.add('hidden');
-        }
-
-
-        async function processOrder(paymentMethod) {
-            if (!db) { showNotification("Error", "Database not connected."); return; }
-
-            const buyerEmailInput = document.getElementById('buyer-email');
-            if (!buyerEmailInput.value || !buyerEmailInput.checkValidity()) {
-                showNotification("Input Required", "Please enter a valid email address.");
-                buyerEmailInput.focus();
-                return;
-            }
-
-            const orderData = {
-                buyerEmail: buyerEmailInput.value,
-                serviceName: currentService.serviceName,
-                price: currentService.price,
-                paymentMethod: paymentMethod,
-                createdAt: serverTimestamp()
-            };
-
-            try {
-                await addDoc(collection(db, "orders"), orderData);
-                
-                // For UPI and Litecoin, simply log the order and show instructions
-                showNotification('Order Logged', 'Your order has been recorded. Please follow the payment instructions in the modal.');
-                
-            } catch (error) {
-                console.error("Error creating order: ", error);
-                showNotification("Error", "There was an error processing your order. Please try again.");
-            }
-        }
-
-        // REMOVED skrillButton event listener
-
-        upiButton.addEventListener('click', () => {
-            upiInstructions.classList.remove('hidden');
-            litecoinInstructions.classList.add('hidden');
-            processOrder('UPI');
-        });
-
-        // REMOVED nayapayButton event listener (replaced by UPI)
-
-        litecoinButton.addEventListener('click', () => {
-            litecoinInstructions.classList.remove('hidden');
-            upiInstructions.classList.add('hidden');
-            processOrder('Litecoin');
-        });
-
-
-        // --- Animation Logic ---
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        function setupScrollAnimations(container) {
-            const elementsToAnimate = container.querySelectorAll('.animate-on-scroll');
-            elementsToAnimate.forEach(el => {
-                el.classList.remove('is-visible');
-                scrollObserver.observe(el);
-            });
-        }
-        
-        window.addEventListener('scroll', () => {
-            document.querySelector('header').classList.toggle('scrolled', window.scrollY > 50);
-        });
-
-        // --- Initial Load & Loader Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const loader = document.getElementById('loader');
-            const app = document.getElementById('app');
-
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                app.classList.add('loaded');
-                
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                    setupScrollAnimations(document.body);
-                }, 500); // Match CSS transition duration
-
-            }, 3500); // 3.5 second delay
-        });
-        
-        // --- Fast Delivery Logic (Simplified to only include Discord tiers) ---
-        window.toggleFastDelivery = (tier, checkbox) => {
-            // ONLY keep discord-standard and discord-premium logic
-            const deliveryOptions = {
-                'discord-standard': { basePrice: 10, fastPrice: 15, baseDelivery: '2-day delivery', fastDelivery: '1-day delivery', baseLink: null, fastLink: null, serviceName: 'Discord Standard' }, // Links are now null as Skrill is removed
-                'discord-premium': { basePrice: 20, fastPrice: 25, baseDelivery: '3-day delivery', fastDelivery: '2-day delivery', baseLink: null, fastLink: null, serviceName: 'Discord Premium' } // Links are now null as Skrill is removed
-            };
-
-            const options = deliveryOptions[tier];
-            if (!options) return;
-
-            const priceEl = document.getElementById(`${tier}-price`);
-            const deliveryEl = document.getElementById(`${tier}-delivery`);
-            const buttonEl = document.getElementById(`${tier}-button`);
-
-            const isFast = checkbox.checked;
-            const price = isFast ? options.fastPrice : options.basePrice;
-            const delivery = isFast ? options.fastDelivery : options.baseDelivery;
-            const link = isFast ? options.fastLink : options.baseLink;
-            const serviceName = isFast ? `${options.serviceName} (Fast Delivery)` : options.serviceName;
-
-            priceEl.textContent = price;
-            if (deliveryEl) deliveryEl.textContent = delivery;
+            <!-- Footer Column 1: Logo & Socials -->
+            <div>
+                <h3 class="text-2xl font-bold text-white mb-4 uppercase">CoreTick</h3>
+                <p class="text-sm">Timeless watches, timeless style.</p>
+                <div class="flex space-x-4 mt-6">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/core_tick?igsh=c3VqNHBlY3IwanJm" target="_blank" class="hover:text-white" aria-label="Instagram"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.148 3.227-1.665 4.77-4.919 4.919-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.07-1.646-.07-4.85s.012-3.584.07-4.85c.148-3.227 1.665-4.77 4.919-4.919 1.266-.057 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948s.014 3.667.072 4.947c.2 4.358 2.618 6.78 6.98 6.98 1.281.059 1.689.073 4.948.073s3.667-.014 4.947-.072c4.358-.2 6.78-2.618 6.98-6.98.059-1.281.073-1.689.073-4.948s-.014-3.667-.072-4.947c-.2-4.358-2.618-6.78-6.98-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.44-.645 1.44-1.44s-.645-1.44-1.44-1.44z"/></svg></a>
+                    <!-- TikTok (Corrected SVG) -->
+                    <a href="https://www.tiktok.com/@core_tick?_t=ZS-90s5Zmde4ZE&_r=1" target="_blank" class="hover:text-white" aria-label="TikTok">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.6 5.82s.51.5 0 0A4.7 4.7 0 0 1 15.15 8c0 .37-.02.74-.07 1.1H12.9V13.7a5 5 0 0 1-1.5 3.53A4.8 4.8 0 0 1 8 18.7a4.9 4.9 0 0 1-4.2-2.32A5 5 0 0 1 2.3 12a5 5 0 0 1 1.5-3.53A4.8 4.8 0 0 1 7.1 7a5 5 0 0 1 3.32 1.19V3.41h2.11V10.7a2.9 2.9 0 0 0 1.56 2.65 2.8 2.8 0 0 0 3.27-.4A2.9 2.9 0 0 0 18.9 10a5 5 0 0 0-2.3-4.18Z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
             
-            // Update the onclick attribute of the button - link parameter is now null
-            buttonEl.setAttribute('onclick', `showPaymentModal('${serviceName}', ${price}, null)`);
-        };
+            <!-- Footer Column 2: Quick Links -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-5">Quick Links</h4>
+                <ul class="space-y-3">
+                    <li><a href="#home" class="hover:text-white text-sm transition-colors">Home</a></li>
+                    <li><a href="#featured" class="hover:text-white text-sm transition-colors">Shop</a></li>
+                    <li><a href="#about" class="hover:text-white text-sm transition-colors">About Us</a></li>
+                </ul>
+            </div>
+            
+            <!-- Footer Column 3: Help -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-5">Help</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" class="hover:text-white text-sm transition-colors">FAQs</a></li>
+                    <li><a href="#" class="hover:text-white text-sm transition-colors">Shipping Policy</a></li>
+                    <li><a href="#" class="hover:text-white text-sm transition-colors">Return Policy</a></li>
+                    <li><a href="#" class="hover:text-white text-sm transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
 
+            <!-- Footer Column 4: Contact -->
+            <div>
+                <h4 class="text-lg font-semibold text-white mb-5">Contact</h4>
+                <p class="text-sm">Email: <a href="mailto:coretick2@gmail.com" class="hover:text-white hover:underline">coretick2@gmail.com</a></p>
+                <p class="text-sm mt-3">WhatsApp: <a href="https://wa.me/923213595359" target="_blank" class="hover:text-white hover:underline">+92 321 3595359</a></p>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom Bar -->
+        <div class="border-t border-gray-700 mt-12 pt-8 text-center">
+            <p class="text-sm">&copy; 2025 CoreTick. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    
+    <!-- Mobile Menu Script -->
+    <script>
+        document.getElementById('menu-btn').addEventListener('click', function() {
+            var mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
+        });
     </script>
     
-    <!--Start of Tawk.to Script-->
-    <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/6873fa4c359126190c0bf405/1j02gjf9k';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-    </script>
-    <!--End of Tawk.to Script-->
+    <!-- Preloader Script (with 3-second minimum) -->
+    <script>
+        window.addEventListener('load', function() {
+            const startTime = new Date().getTime();
+            const preloader = document.getElementById('preloader');
+            const minDuration = 3000; // 3 seconds
 
+            function hidePreloader() {
+                // Add fade-out class
+                preloader.classList.add('fade-out');
+                
+                // Remove from DOM after transition
+                preloader.addEventListener('transitionend', function() {
+                    preloader.style.display = 'none';
+                });
+            }
+
+            const loadTime = new Date().getTime() - startTime;
+
+            if (loadTime < minDuration) {
+                setTimeout(hidePreloader, minDuration - loadTime);
+            } else {
+                hidePreloader();
+            }
+        });
+    </script>
 </body>
 </html>
+
